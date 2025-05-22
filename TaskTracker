@@ -1,0 +1,281 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <chrono>
+#include <ctime>
+#include <cstdio>
+#include <cstdlib>
+
+using namespace std;
+
+class Task {
+private:
+    string date;
+    string tag;
+    string name;
+    bool completed;
+    bool archived;
+
+public:
+    Task(string n) {
+        name = n;
+        date = "";
+        tag = "Misc";
+        completed = false;
+        archived = false;
+    }
+
+    Task(string n, string d) {
+        name = n;
+        date = d;
+        tag = "Misc";
+        completed = false;
+        archived = false;
+    }
+
+    Task(string n, string d, string t) {
+        name = n;
+        date = d;
+        tag = t;
+        completed = false;
+        archived = false;
+    }
+
+    string getDate() {
+        return date;
+    }
+
+    string getTag() {
+        return tag;
+    }
+
+    string getName() {
+        return name;
+    }
+
+    bool isCompleted() {
+        return completed;
+    }
+
+    bool isArchived() {
+        return archived;
+    }
+
+    void updateDate(string d) {
+        date = d;
+    }
+
+    void updateTag(string t) {
+        tag = t;
+    }
+
+    void updateCompleted(bool c) {
+        completed = c;
+    }
+
+    void updateArchived(bool a) {
+        archived = a;
+    }
+};
+
+std::vector<Task> currentTasks;
+
+int fileCount = 0;
+
+string getName() {
+    fstream data("Data.txt");
+    string line;
+    string line2;
+
+    getline(data, line);
+    getline(data, line2);
+
+    fileCount = (line2 != "" && atoi(line2.c_str()) || 0);
+
+    if (line.length() == 0) {
+        std::cout << "Please enter your name: " << endl;
+        cin >> line;
+        std::cout << endl;
+    }
+
+    data.close();
+
+    fstream savingData("Data.txt");
+    savingData << line << endl;
+
+    savingData.close();
+
+    return line;
+}
+
+void showTask(Task currentTask) {
+    cout << currentTask.getName() << endl;
+    cout << "Due: " + currentTask.getDate() << endl;
+    cout << "Category: " + currentTask.getTag() << endl;
+    cout << "Completed?: " + currentTask.isCompleted() << endl;
+}
+
+void showTasks(string tag, bool archived) {
+    for (int i = 0; i < currentTasks.size(); i++) {
+        Task currentTask = currentTasks[i];
+        if (tag == "" || tag == currentTask.getTag()) {
+            if (currentTask.isArchived() == archived) {
+                cout << endl;
+                showTask(currentTask);
+            }
+        }
+    }
+}
+
+void saveTasks() {
+    for (int i = 0; i < currentTasks.size(); i++) {
+        Task toSave = currentTasks[i];
+
+        cout << "saving?" << endl;
+
+        fstream taskFile("Task" + to_string(i) + ".txt", (i+1 > fileCount && std::ios::out || std::ios::trunc));
+
+        taskFile << toSave.getName() << endl;
+        taskFile << toSave.getDate() << endl;
+        taskFile << toSave.getTag() << endl;
+        taskFile << (toSave.isCompleted() && "true" || "false") << endl;
+        taskFile << (toSave.isArchived() && "true" || "false") << endl;
+        
+        taskFile.close();
+    }
+}
+
+int main() {
+    string name = getName();
+    bool archivedMode = false;
+    string tag = "";
+    string dateFilter = "soonest";
+
+    std::cout << "Welcome to your Task Tracker, " << name << "!" << std::endl;
+
+    // Get Tasks From Files
+    for (int i = 0; i < fileCount; i++) {
+        fstream taskFile("Task" + to_string(i) + ".txt");
+        string name, date, tag;
+        string completedStr, archivedStr;
+
+        getline(taskFile, name);
+        getline(taskFile, date);
+        getline(taskFile, tag);
+        getline(taskFile, completedStr);
+        getline(taskFile, archivedStr);
+
+        bool completed = (completedStr == "true" && true || false);
+        bool archived = (archivedStr == "true" && true || false);
+
+        Task newTask = Task(name, date, tag);
+        newTask.updateArchived(archived);
+        newTask.updateCompleted(completed);
+
+        currentTasks.push_back(newTask);
+
+        taskFile.close();
+    }
+    
+    // Begin Application Loop
+    while (true) {
+        string taskName;
+        string taskTag;
+        string taskDate;
+
+        cout << endl;
+        cout << "(1) Look at current tasks with applied filters" << endl;
+        cout << "(2) Filter by tag" << endl;
+        cout << "(3) Filter by date" << endl;
+        cout << "(4) Create task" << endl;
+        cout << "(5) Archive task" << endl;
+        cout << "(6) Exit" << endl;
+        cout << endl;
+
+        int input;
+        cin >> input;
+
+        switch (input) {
+        case 1:
+            showTasks(tag, archivedMode);
+            break;
+        case 2:
+            if (tag == "") {
+                cout << "There is not preset tag, what would you like to set it to?: " << endl;
+            }
+            else {
+                cout << "The current tag is: " + tag + ", what would you like to change it to? (n/a): " << endl;
+            }
+            cin >> tag;
+            if (tag == "n/a") {
+                tag = "";
+            }
+            break;
+        case 3:
+            cout << "The tasks are currently sorted by: " + dateFilter + ", what would you like to change it to?" << endl;
+            cout << "(1) For soonest" << endl;
+            cout << "(2) For latest" << endl;
+
+            int input;
+            cin >> input;
+
+            switch (input) {
+            case 1:
+                dateFilter = "soonest";
+                break;
+            case 2:
+                dateFilter = "latest";
+                break;
+            default:
+                // nothing
+                cout << "Please enter a valid input next time!" << endl;
+                break;
+            }
+            break;
+        case 4:
+            cout << "Enter the task name: " << endl;
+            cin >> taskName;
+
+            cout << "Enter the task due date (MM-DD-YYYY): " << endl;
+            cin >> taskDate;
+
+            cout << "Enter the task tag (default is Misc): " << endl;
+            cin >> taskTag;
+
+            currentTasks.push_back(Task(taskName, taskDate, taskTag));
+
+            cout << "Your task has been succesfully created!" << endl;
+            break;
+        case 5:
+            cout << "Enter the task name: " << endl;
+            cin >> name;
+
+            for (int i = 0; i < currentTasks.size(); i++) {
+                if (currentTasks[i].getName() == name) {
+                    currentTasks[i].updateArchived(true);
+                }
+            }
+
+            cout << name + " has been succesfully archived!" << endl;
+            break;
+        case 6:
+            break;
+        default:
+            cout << "Try again, that wasn't a valid input." << endl;
+            break;
+        }
+
+        if (input == 6) {
+            break;
+        }
+    }
+
+    saveTasks();
+
+    // Save tasks size
+    fstream savingData("Data.txt", std::ios::trunc);
+    savingData << name << endl;
+    savingData << currentTasks.size() << endl;
+    savingData.close();
+}
