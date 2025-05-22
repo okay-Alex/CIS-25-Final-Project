@@ -9,6 +9,8 @@
 
 using namespace std;
 
+// The program will center around Tasks, they store simple pieces of information and are saved in text files
+
 class Task {
 private:
     string date;
@@ -79,9 +81,13 @@ public:
     }
 };
 
+// Define a vector to hold our tasks
+
 std::vector<Task> currentTasks;
 
 int fileCount = 0;
+
+// Gets the user's name, and also fetches the file count
 
 string getName() {
     fstream data("Data.txt");
@@ -109,12 +115,16 @@ string getName() {
     return line;
 }
 
+// Show's a task's information on the console
+
 void showTask(Task currentTask) {
     cout << currentTask.getName() << endl;
     cout << "Due: " + currentTask.getDate() << endl;
     cout << "Category: " + currentTask.getTag() << endl;
     cout << "Completed?: " + currentTask.isCompleted() << endl;
 }
+
+// Shows all tasks that fit the sort criteria
 
 void showTasks(string tag, bool archived) {
     for (int i = 0; i < currentTasks.size(); i++) {
@@ -127,6 +137,8 @@ void showTasks(string tag, bool archived) {
         }
     }
 }
+
+// Saves tasks into files
 
 void saveTasks() {
     for (int i = 0; i < currentTasks.size(); i++) {
@@ -145,6 +157,8 @@ void saveTasks() {
         taskFile.close();
     }
 }
+
+// Driver function, has application loop and loads initial data along with saving it at the end.
 
 int main() {
     string name = getName();
