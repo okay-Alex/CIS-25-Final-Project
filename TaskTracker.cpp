@@ -245,7 +245,7 @@ int main() {
         cout << endl;
         cout << "(1) Look at current tasks with applied filters" << endl;
         cout << "(2) Filter by tag" << endl;
-        cout << "(3) Filter by date" << endl;
+        cout << "(3) Sort by date" << endl;
         cout << "(4) Create task" << endl;
         cout << "(5) Archive task" << endl;
         cout << "(6) Show archived" << endl;
@@ -361,7 +361,7 @@ int main() {
         case 7:
             break;
         default:
-            cout << "Try again, that wasn't a valid input." << endl;
+            cout << "Try again, that wasn't a valid input." << endl; 
             break;
         }
 
