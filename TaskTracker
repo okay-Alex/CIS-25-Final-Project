@@ -90,7 +90,7 @@ int fileCount = 0;
 // Gets the user's name, and also fetches the file count
 
 string getName() {
-    fstream data("Data.txt");
+    ifstream data("Data.txt");
     string line;
     string line2;
 
@@ -104,13 +104,6 @@ string getName() {
         cin >> line;
         std::cout << endl;
     }
-
-    data.close();
-
-    fstream savingData("Data.txt");
-    savingData << line << endl;
-
-    savingData.close();
 
     return line;
 }
@@ -292,8 +285,10 @@ int main() {
     saveTasks();
 
     // Save tasks size
-    fstream savingData("Data.txt", std::ios::trunc);
+    fstream savingData("Data.txt", ios::out | ios::trunc);
+
     savingData << name << endl;
     savingData << currentTasks.size() << endl;
+
     savingData.close();
 }
