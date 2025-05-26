@@ -11,7 +11,8 @@ using namespace std;
 
 // The program will center around Tasks, they store simple pieces of information and are saved in text files
 
-// Task Class Attributes:
+// Task Class
+// Attributes:
 
 // date (string) - stores date in format: MM-DD-YYYY
 // tag (string) - task's tag (default/standard tag is Misc)
@@ -229,6 +230,7 @@ int main() {
 
         // Switch case for each of the options designated above
 
+        
         switch (input) {
         case 1:
             showTasks(tag, archivedMode);
@@ -279,6 +281,7 @@ int main() {
             cin >> taskTag;
 
             currentTasks.push_back(Task(taskName, taskDate, taskTag));
+            currentTasks[currentTasks.size() - 1].setPosInVector(currentTasks.size() - 1);
 
             cout << "Your task has been succesfully created!" << endl;
             break;
