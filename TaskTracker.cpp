@@ -11,8 +11,7 @@ using namespace std;
 
 // The program will center around Tasks, they store simple pieces of information and are saved in text files
 
-// Task Class
-// Attributes:
+// Task Class Attributes:
 
 // date (string) - stores date in format: MM-DD-YYYY
 // tag (string) - task's tag (default/standard tag is Misc)
