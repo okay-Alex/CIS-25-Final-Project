@@ -6,6 +6,7 @@
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
+#include <algorithm>
 
 using namespace std;
 
@@ -84,23 +85,23 @@ public:
         taskFile.close();
     }
 
-    string getDate() {
+    string getDate() const {
         return date;
     }
 
-    string getTag() {
+    string getTag() const {
         return tag;
     }
 
-    string getName() {
+    string getName() const {
         return name;
     }
 
-    int getPosInVector() {
+    int getPosInVector() const {
         return posInVector;
     }
 
-    bool isArchived() {
+    bool isArchived() const {
         return archived;
     }
 
@@ -122,9 +123,10 @@ public:
 };
 
 // Define a vector to hold our tasks
-
 std::vector<Task> currentTasks;
 
+// Define variables to store date filter sort and file count
+string dateFilter = "soonest";
 int fileCount = 0;
 
 // Gets the user's name, and also fetches the file count
@@ -148,22 +150,49 @@ string getName() {
     return line;
 }
 
-// Shows all tasks that fit the sort criteria
+// Function to parse date string into comparable number
+int parseDate(string date) {
+    int year = stoi(date.substr(6, 9));
+    int month = stoi(date.substr(0, 2));
+    int day = stoi(date.substr(3, 5));
 
+    int secondsFromYear = (year - 2025) * 31536000;
+    int secondsFromMonth = month * 2592000;
+    int secondsFromDay = day * 86400;
+
+    return (secondsFromYear + secondsFromMonth + secondsFromDay);
+}
+
+
+bool compare(const Task &a, const Task &b) {
+    int dateA = parseDate(a.getDate());
+    int dateB = parseDate(b.getDate());
+    
+    return dateFilter == "soonest" ? dateA < dateB : dateA > dateB;
+}
+
+// Shows all tasks that fit the sort criteria
 void showTasks(string tag, bool archived) {
+    std::vector<Task> tasksToShow;
+    // Filter tasks by tag
     for (int i = 0; i < currentTasks.size(); i++) {
         Task currentTask = currentTasks[i];
         if (tag == "" || tag == currentTask.getTag()) {
             if (currentTask.isArchived() == archived) {
-                cout << endl;
-                currentTask.show();
+                tasksToShow.push_back(currentTask);
             }
         }
+    }
+    // Sort tasks by soonest or latest
+    std::sort(tasksToShow.begin(), tasksToShow.end(), compare);
+    // Display tasks
+    for (int i = 0; i < tasksToShow.size(); i++) {
+        cout << endl;
+        tasksToShow[i].show();
     }
 }
 
 // Saves tasks into files
-
 void saveTasks() {
     for (int i = 0; i < currentTasks.size(); i++) {
         Task toSave = currentTasks[i];
@@ -172,12 +201,10 @@ void saveTasks() {
 }
 
 // Driver function, has application loop and loads initial data along with saving it at the end.
-
 int main() {
     string name = getName();
     bool archivedMode = false;
     string tag = "";
-    string dateFilter = "soonest";
 
     std::cout << "Welcome to your Task Tracker, " << name << "!" << std::endl;
 
