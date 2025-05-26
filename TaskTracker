@@ -97,7 +97,7 @@ string getName() {
     getline(data, line);
     getline(data, line2);
 
-    fileCount = (line2 != "" && atoi(line2.c_str()) || 0);
+    fileCount = atoi(line2.c_str());
 
     if (line.length() == 0) {
         std::cout << "Please enter your name: " << endl;
@@ -146,14 +146,14 @@ void saveTasks() {
 
         cout << "saving?" << endl;
 
-        fstream taskFile("Task" + to_string(i) + ".txt", (i+1 > fileCount && std::ios::out || std::ios::trunc));
+        fstream taskFile("Task" + to_string(i) + ".txt", ios::out | ios::trunc);
 
         taskFile << toSave.getName() << endl;
         taskFile << toSave.getDate() << endl;
         taskFile << toSave.getTag() << endl;
-        taskFile << (toSave.isCompleted() && "true" || "false") << endl;
-        taskFile << (toSave.isArchived() && "true" || "false") << endl;
-        
+        taskFile << (toSave.isCompleted() && "1" || "0") << endl;
+        taskFile << (toSave.isArchived() && "1" || "0") << endl;
+
         taskFile.close();
     }
 }
@@ -169,6 +169,8 @@ int main() {
     std::cout << "Welcome to your Task Tracker, " << name << "!" << std::endl;
 
     // Get Tasks From Files
+    cout << "Tasks to load: " << fileCount << endl;
+
     for (int i = 0; i < fileCount; i++) {
         fstream taskFile("Task" + to_string(i) + ".txt");
         string name, date, tag;
@@ -180,8 +182,8 @@ int main() {
         getline(taskFile, completedStr);
         getline(taskFile, archivedStr);
 
-        bool completed = (completedStr == "true" && true || false);
-        bool archived = (archivedStr == "true" && true || false);
+        bool completed = (completedStr == "1" && true || false);
+        bool archived = (archivedStr == "0" && true || false);
 
         Task newTask = Task(name, date, tag);
         newTask.updateArchived(archived);
@@ -191,7 +193,7 @@ int main() {
 
         taskFile.close();
     }
-    
+
     // Begin Application Loop
     while (true) {
         string taskName;
@@ -248,8 +250,10 @@ int main() {
             }
             break;
         case 4:
+            cin.ignore();
+
             cout << "Enter the task name: " << endl;
-            cin >> taskName;
+            getline(cin, taskName);
 
             cout << "Enter the task due date (MM-DD-YYYY): " << endl;
             cin >> taskDate;
