@@ -16,7 +16,6 @@ private:
     string date;
     string tag;
     string name;
-    bool completed;
     bool archived;
 
 public:
@@ -24,7 +23,6 @@ public:
         name = n;
         date = "";
         tag = "Misc";
-        completed = false;
         archived = false;
     }
 
@@ -32,7 +30,6 @@ public:
         name = n;
         date = d;
         tag = "Misc";
-        completed = false;
         archived = false;
     }
 
@@ -40,7 +37,6 @@ public:
         name = n;
         date = d;
         tag = t;
-        completed = false;
         archived = false;
     }
 
@@ -56,10 +52,6 @@ public:
         return name;
     }
 
-    bool isCompleted() {
-        return completed;
-    }
-
     bool isArchived() {
         return archived;
     }
@@ -70,10 +62,6 @@ public:
 
     void updateTag(string t) {
         tag = t;
-    }
-
-    void updateCompleted(bool c) {
-        completed = c;
     }
 
     void updateArchived(bool a) {
@@ -111,10 +99,19 @@ string getName() {
 // Show's a task's information on the console
 
 void showTask(Task currentTask) {
+    string isCompletedText;
+
+    if (currentTask.isArchived()) {
+        isCompletedText = "Yes";
+    }
+    else {
+        isCompletedText = "No";
+    }
+
     cout << currentTask.getName() << endl;
     cout << "Due: " + currentTask.getDate() << endl;
     cout << "Category: " + currentTask.getTag() << endl;
-    cout << "Completed?: " + currentTask.isCompleted() << endl;
+    cout << "Completed?: " + isCompletedText << endl;
 }
 
 // Shows all tasks that fit the sort criteria
@@ -137,15 +134,12 @@ void saveTasks() {
     for (int i = 0; i < currentTasks.size(); i++) {
         Task toSave = currentTasks[i];
 
-        cout << "saving?" << endl;
-
         fstream taskFile("Task" + to_string(i) + ".txt", ios::out | ios::trunc);
 
         taskFile << toSave.getName() << endl;
         taskFile << toSave.getDate() << endl;
         taskFile << toSave.getTag() << endl;
-        taskFile << (toSave.isCompleted() && "1" || "0") << endl;
-        taskFile << (toSave.isArchived() && "1" || "0") << endl;
+        taskFile << (toSave.isArchived() ? "true" : "false") << endl;
 
         taskFile.close();
     }
@@ -162,25 +156,22 @@ int main() {
     std::cout << "Welcome to your Task Tracker, " << name << "!" << std::endl;
 
     // Get Tasks From Files
-    cout << "Tasks to load: " << fileCount << endl;
+    cout << "Tasks loaded: " << fileCount << endl;
 
     for (int i = 0; i < fileCount; i++) {
         fstream taskFile("Task" + to_string(i) + ".txt");
         string name, date, tag;
-        string completedStr, archivedStr;
+        string archivedStr;
 
         getline(taskFile, name);
         getline(taskFile, date);
         getline(taskFile, tag);
-        getline(taskFile, completedStr);
         getline(taskFile, archivedStr);
 
-        bool completed = (completedStr == "1" && true || false);
-        bool archived = (archivedStr == "0" && true || false);
+        bool archived = (archivedStr == "true" && true || false);
 
         Task newTask = Task(name, date, tag);
         newTask.updateArchived(archived);
-        newTask.updateCompleted(completed);
 
         currentTasks.push_back(newTask);
 
@@ -192,6 +183,8 @@ int main() {
         string taskName;
         string taskTag;
         string taskDate;
+        string archiveText;
+        bool archiveSuccess = false;
 
         cout << endl;
         cout << "(1) Look at current tasks with applied filters" << endl;
@@ -199,7 +192,8 @@ int main() {
         cout << "(3) Filter by date" << endl;
         cout << "(4) Create task" << endl;
         cout << "(5) Archive task" << endl;
-        cout << "(6) Exit" << endl;
+        cout << "(6) Show archived" << endl;
+        cout << "(7) Exit" << endl;
         cout << endl;
 
         int input;
@@ -259,25 +253,59 @@ int main() {
             cout << "Your task has been succesfully created!" << endl;
             break;
         case 5:
+            cin.ignore();
+
             cout << "Enter the task name: " << endl;
-            cin >> name;
+            getline(cin, taskName);
 
             for (int i = 0; i < currentTasks.size(); i++) {
-                if (currentTasks[i].getName() == name) {
+                if (currentTasks[i].getName() == taskName) {
+                    archiveSuccess = true;
                     currentTasks[i].updateArchived(true);
                 }
             }
 
-            cout << name + " has been succesfully archived!" << endl;
+            if (archiveSuccess) {
+                cout << taskName + " has been succesfully archived!" << endl;
+            }
+            else {
+                cout << taskName + " does not exist!" << endl;
+            }
             break;
         case 6:
+            if (archivedMode) {
+                archiveText = "Archived";
+            }
+            else {
+                archiveText = "Not Archived";
+            }
+
+            cout << "The tasks currently shown are: " + archiveText << endl;
+            cout << "(1) Switch to show archived" << endl;
+            cout << "(2) Switch to show non-archived \n" << endl;
+
+            int choice;
+            cin >> choice;
+            
+            if (choice == 1) {
+                archivedMode = true;
+            }
+            else if (choice == 2) {
+                archivedMode = false;
+            }
+            else {
+                cout << "Please try again!" << endl;
+            }
+
+            break;
+        case 7:
             break;
         default:
             cout << "Try again, that wasn't a valid input." << endl;
             break;
         }
 
-        if (input == 6) {
+        if (input == 7) {
             break;
         }
     }
