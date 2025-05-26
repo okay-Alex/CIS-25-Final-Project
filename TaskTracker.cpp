@@ -71,6 +71,19 @@ public:
         cout << "Completed?: " + isCompletedText << endl;
     }
 
+    // Method to save this task in its designated file
+
+    void save() {
+        fstream taskFile("Task" + to_string(posInVector) + ".txt", ios::out | ios::trunc);
+
+        taskFile << name << endl;
+        taskFile << date << endl;
+        taskFile << tag << endl;
+        taskFile << (archived ? "true" : "false") << endl;
+
+        taskFile.close();
+    }
+
     string getDate() {
         return date;
     }
@@ -154,15 +167,7 @@ void showTasks(string tag, bool archived) {
 void saveTasks() {
     for (int i = 0; i < currentTasks.size(); i++) {
         Task toSave = currentTasks[i];
-
-        fstream taskFile("Task" + to_string(i) + ".txt", ios::out | ios::trunc);
-
-        taskFile << toSave.getName() << endl;
-        taskFile << toSave.getDate() << endl;
-        taskFile << toSave.getTag() << endl;
-        taskFile << (toSave.isArchived() ? "true" : "false") << endl;
-
-        taskFile.close();
+        toSave.save();
     }
 }
 
@@ -208,6 +213,8 @@ int main() {
         string archiveText;
         bool archiveSuccess = false;
 
+        // Print out options for the user
+
         cout << endl;
         cout << "(1) Look at current tasks with applied filters" << endl;
         cout << "(2) Filter by tag" << endl;
@@ -220,6 +227,8 @@ int main() {
 
         int input;
         cin >> input;
+
+        // Switch case for each of the options designated above
 
         switch (input) {
         case 1:
@@ -327,14 +336,19 @@ int main() {
             break;
         }
 
+        // An input of 7 will end the application loop
+
         if (input == 7) {
             break;
         }
     }
 
+    // Save Tasks into long term storage
+
     saveTasks();
 
-    // Save tasks size
+    // Save username and amount of tasks in data file
+
     fstream savingData("Data.txt", ios::out | ios::trunc);
 
     savingData << name << endl;
