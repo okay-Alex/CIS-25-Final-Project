@@ -11,11 +11,21 @@ using namespace std;
 
 // The program will center around Tasks, they store simple pieces of information and are saved in text files
 
+// Task Class
+// Attributes:
+
+// date (string) - stores date in format: MM-DD-YYYY
+// tag (string) - task's tag (default/standard tag is Misc)
+// name (string) - tasks's name
+// posInVector (int) - a task's position in the currentTasks vector
+// archived (bool) - determines if a task is completed (true = yes, false = no) and will be shown by default (true = no, false = yes)
+
 class Task {
 private:
     string date;
     string tag;
     string name;
+    int posInVector;
     bool archived;
 
 public:
@@ -23,6 +33,7 @@ public:
         name = n;
         date = "";
         tag = "Misc";
+        posInVector = -1;
         archived = false;
     }
 
@@ -30,6 +41,7 @@ public:
         name = n;
         date = d;
         tag = "Misc";
+        posInVector = -1;
         archived = false;
     }
 
@@ -37,7 +49,26 @@ public:
         name = n;
         date = d;
         tag = t;
+        posInVector = -1;
         archived = false;
+    }
+
+    // Show's a task's information on the console
+
+    void show() {
+        string isCompletedText;
+
+        if (archived) {
+            isCompletedText = "Yes";
+        }
+        else {
+            isCompletedText = "No";
+        }
+
+        cout << name << endl;
+        cout << "Due: " + date << endl;
+        cout << "Category: " + tag << endl;
+        cout << "Completed?: " + isCompletedText << endl;
     }
 
     string getDate() {
@@ -52,8 +83,16 @@ public:
         return name;
     }
 
+    int getPosInVector() {
+        return posInVector;
+    }
+
     bool isArchived() {
         return archived;
+    }
+
+    void setPosInVector(int p) {
+        posInVector = p;
     }
 
     void updateDate(string d) {
@@ -96,24 +135,6 @@ string getName() {
     return line;
 }
 
-// Show's a task's information on the console
-
-void showTask(Task currentTask) {
-    string isCompletedText;
-
-    if (currentTask.isArchived()) {
-        isCompletedText = "Yes";
-    }
-    else {
-        isCompletedText = "No";
-    }
-
-    cout << currentTask.getName() << endl;
-    cout << "Due: " + currentTask.getDate() << endl;
-    cout << "Category: " + currentTask.getTag() << endl;
-    cout << "Completed?: " + isCompletedText << endl;
-}
-
 // Shows all tasks that fit the sort criteria
 
 void showTasks(string tag, bool archived) {
@@ -122,7 +143,7 @@ void showTasks(string tag, bool archived) {
         if (tag == "" || tag == currentTask.getTag()) {
             if (currentTask.isArchived() == archived) {
                 cout << endl;
-                showTask(currentTask);
+                currentTask.show();
             }
         }
     }
@@ -172,6 +193,7 @@ int main() {
 
         Task newTask = Task(name, date, tag);
         newTask.updateArchived(archived);
+        newTask.setPosInVector(i);
 
         currentTasks.push_back(newTask);
 
